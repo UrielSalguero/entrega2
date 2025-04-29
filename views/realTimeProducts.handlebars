@@ -1,0 +1,21 @@
+{{!-- views/realTimeProducts.handlebars --}}
+<h1>{{title}}</h1>
+
+<form id="productForm">
+  <input name="titulo" placeholder="Título" required>
+  <input name="descripcion" placeholder="Descripción" required>
+  <input name="codigo" placeholder="Código" required>
+  <input name="precio" type="number" placeholder="Precio" required>
+  <input name="stock" type="number" placeholder="Stock" required>
+  <input name="categoria" placeholder="Categoría" required>
+  <button type="submit">Agregar Producto</button>
+</form>
+
+<ul id="productList">
+  {{#each products}}
+    <li data-id="{{this.id}}">
+      {{this.titulo}} – ${{this.precio}}
+      <button class="deleteBtn">Eliminar</button>
+    </li>
+  {{/each}}
+</ul>

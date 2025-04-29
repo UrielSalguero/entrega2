@@ -1,0 +1,8 @@
+{{!-- views/home.handlebars --}}
+<h1>{{title}}</h1>
+<ul>
+  {{#each products}}
+    <li>{{this.titulo}} – ${{this.precio}}</li>
+  {{/each}}
+</ul>
+<a href="/realtimeproducts">Ver en tiempo real</a>
