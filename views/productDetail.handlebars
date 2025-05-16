@@ -1,0 +1,19 @@
+<div class="subtitulo">{{product.titulo}}</div>
+
+<div class="contenedor">
+  <div class="cardproducto">
+    <img src="{{lookup product.imagen 0}}" alt="{{product.titulo}}" />
+    <div class="textoproducto">
+      <p><strong>Descripción:</strong> {{product.descripcion}}</p>
+      <p><strong>Código:</strong> {{product.codigo}}</p>
+      <p><strong>Precio:</strong> ${{product.precio}}</p>
+      <p><strong>Stock:</strong> {{product.stock}}</p>
+      <p><strong>Categoría:</strong> {{product.categoria}}</p>
+      <form action="/api/carrito/{{cartId}}/product/{{product._id}}" method="post">
+        <button type="submit">Agregar al carrito</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<a href="/products">← Volver a Productos</a>

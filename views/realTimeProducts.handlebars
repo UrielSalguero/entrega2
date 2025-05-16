@@ -1,6 +1,4 @@
-{{!-- views/realTimeProducts.handlebars --}}
 <h1>{{title}}</h1>
-
 <form id="productForm">
   <input name="titulo" placeholder="Título" required>
   <input name="descripcion" placeholder="Descripción" required>
@@ -10,12 +8,13 @@
   <input name="categoria" placeholder="Categoría" required>
   <button type="submit">Agregar Producto</button>
 </form>
-
 <ul id="productList">
   {{#each products}}
-    <li data-id="{{this.id}}">
+    <li data-id="{{this._id}}">
       {{this.titulo}} – ${{this.precio}}
       <button class="deleteBtn">Eliminar</button>
     </li>
   {{/each}}
 </ul>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/socketClient.js"></script>

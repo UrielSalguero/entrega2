@@ -1,8 +1,68 @@
-{{!-- views/home.handlebars --}}
-<h1>{{title}}</h1>
-<ul>
-  {{#each products}}
-    <li>{{this.titulo}} – ${{this.precio}}</li>
-  {{/each}}
-</ul>
-<a href="/realtimeproducts">Ver en tiempo real</a>
+<div class="contenedor">
+  <div class="filters">
+    <div>
+      <label for="precioMin">Precio mínimo</label>
+      <input id="precioMin" type="range" min="0" max="1000" value="0" />
+      <span id="precioValor">$0</span>
+    </div>
+    <div>
+      <label for="categoria">Categorías</label>
+      <select id="categoria" name="query">
+        <option value="">Todos</option>
+        <option value="categoria:Perifericos">Periféricos</option>
+        <option value="categoria:Accesorios">Accesorios</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="productos">
+    {{#each products}}
+      <div class="cardproducto">
+        <img src="{{lookup this.imagen 0}}" alt="{{this.titulo}}" />
+        <div class="textoproducto">
+          <h3>{{this.titulo}}</h3>
+          <p>{{this.descripcion}}</p>
+          <p>${{this.precio}}</p>
+
+          {{#if ../cartId}}
+            <form
+              action="/api/carrito/{{../cartId}}/product/{{this._id}}"
+              method="post"
+            >
+              <button type="submit">Agregar al carrito</button>
+            </form>
+          {{/if}}
+
+          <a href="/products/{{this._id}}">Ver detalles</a>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+
+  <div class="CartWidget">
+    <h2>Carrito</h2>
+    {{#if cartId}}
+      <a href="/carts/{{cartId}}">Ver mi carrito</a>
+    {{else}}
+      <p>(carrito no inicializado)</p>
+    {{/if}}
+  </div>
+</div>
+
+<nav class="paginacion">
+  {{#if pagination.hasPrevPage}}
+    <a href="/products?page={{pagination.prevPage}}&limit={{pagination.limit}}
+      {{#if pagination.sort}}&sort={{pagination.sort}}{{/if}}
+      {{#if pagination.query}}&query={{pagination.query}}{{/if}}">
+      ← Anterior
+    </a>
+  {{/if}}
+  <span>Página {{pagination.page}} de {{pagination.totalPages}}</span>
+  {{#if pagination.hasNextPage}}
+    <a href="/products?page={{pagination.nextPage}}&limit={{pagination.limit}}
+      {{#if pagination.sort}}&sort={{pagination.sort}}{{/if}}
+      {{#if pagination.query}}&query={{pagination.query}}{{/if}}">
+      Siguiente →
+    </a>
+  {{/if}}
+</nav>

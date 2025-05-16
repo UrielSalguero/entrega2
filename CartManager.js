@@ -1,60 +1,72 @@
-import fs from 'fs'
+import mongoose from 'mongoose'
 
-class CartManager {
-  constructor(ruta) {
-    this.ruta = ruta
-  }
-
-  async cargarcarrito() {
-    try {
-      const datos = await fs.promises.readFile(this.ruta, 'utf-8')
-      return JSON.parse(datos)
-    } catch (error) {
-      return []
+const esquemaCarrito = new mongoose.Schema({
+  products: [
+    {
+      product: { type: mongoose.Schema.Types.ObjectId, ref: 'Producto' },
+      quantity: { type: Number, default: 1 }
     }
+  ]
+})
+
+const Carrito = mongoose.model('Carrito', esquemaCarrito)
+
+export default class CartManager {
+  async createCart() {
+    const carrito = await Carrito.create({ products: [] })
+    return carrito.toObject()
   }
 
-  async guardarcarrito(carritos) {
-    await fs.promises.writeFile(this.ruta, JSON.stringify(carritos, null, 2))
+  async getCartByIdPopulate(cid) {
+    return await Carrito.findById(cid)
+      .populate('products.product')
+      .lean()
   }
 
-  async crearcarrito() {
-    const carritos = await this.cargarcarrito()
-
-    const nuevoCarrito = {
-      id: carritos.length > 0 ? carritos[carritos.length - 1].id + 1 : 1,
-      productos: []
-    }
-
-    carritos.push(nuevoCarrito)
-    await this.guardarcarrito(carritos)
-    return nuevoCarrito
-  }
-
-  async obtenerCarritoPorId(idcarrito) {
-    const carritos = await this.cargarcarrito()
-    return carritos.find(c => c.id === parseInt(idcarrito)) || null
-  }
-
-  async agregarAlCarrito(idcarrito, idproducto) {
-    const carritos = await this.cargarcarrito()
-    const cart = carritos.find(c => c.id === parseInt(idcarrito))
-
-    if (!cart) {
-      throw new Error('Carrito no encontrado')
-    }
-
-    const productoEnCarrito = cart.productos.find(p => p.id === parseInt(idproducto))
-
-    if (productoEnCarrito) {
-      productoEnCarrito.cantidad += 1
+  async addToCart(cid, pid) {
+    const carrito = await Carrito.findById(cid)
+    if (!carrito) throw new Error('Carrito no encontrado')
+    const item = carrito.products.find(p => p.product.equals(pid))
+    if (item) {
+      item.quantity++
     } else {
-      cart.productos.push({ id: parseInt(idproducto), cantidad: 1 })
+      carrito.products.push({ product: pid })
     }
+    await carrito.save()
+    return carrito.toObject()
+  }
 
-    await this.guardarcarrito(carritos)
-    return cart
+  async removeFromCart(cid, pid) {
+    const carrito = await Carrito.findById(cid)
+    if (!carrito) throw new Error('Carrito no encontrado')
+    carrito.products = carrito.products.filter(p => !p.product.equals(pid))
+    await carrito.save()
+    return carrito.toObject()
+  }
+
+  async updateCartProducts(cid, lista) {
+    const carrito = await Carrito.findById(cid)
+    if (!carrito) throw new Error('Carrito no encontrado')
+    carrito.products = lista
+    await carrito.save()
+    return carrito.toObject()
+  }
+
+  async updateProductQuantity(cid, pid, cantidad) {
+    const carrito = await Carrito.findById(cid)
+    if (!carrito) throw new Error('Carrito no encontrado')
+    const item = carrito.products.find(p => p.product.equals(pid))
+    if (!item) throw new Error('Producto no en carrito')
+    item.quantity = cantidad
+    await carrito.save()
+    return carrito.toObject()
+  }
+
+  async clearCart(cid) {
+    const carrito = await Carrito.findById(cid)
+    if (!carrito) throw new Error('Carrito no encontrado')
+    carrito.products = []
+    await carrito.save()
+    return carrito.toObject()
   }
 }
-
-export default CartManager
